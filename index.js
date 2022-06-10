@@ -17,7 +17,7 @@ const commandFilesRoleMenu = fs.readdirSync("./src/commands/rolemenu").filter(fi
 // User Interaction/-Commands
 const userInteractionFilesWhisper = fs.readdirSync("./src/commands/userinteraction").filter(file => file.endsWith(".js"));
 
-// STRUGGLES WITH EMPTY FILES!
+// STRUGGLES WITH EMPTY FILES! CAREFUL
 commandFilesGeneral.forEach(commandFile => {
     const commandGeneral = require(`./src/commands/general/${commandFile}`);
     client.commands.set(commandGeneral.data.name, commandGeneral);
