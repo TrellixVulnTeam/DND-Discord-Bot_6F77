@@ -4,6 +4,6 @@ USE `database`;
 
 CREATE TABLE IF NOT EXISTS `database`.`whisper` (
     `channelid` VARCHAR(45) NOT NULL,
-    `username1` VARCHAR(45) NOT NULL,
-    `username2` VARCHAR(45) NOT NULL,
+    `userid1` VARCHAR(45) NOT NULL,
+    `userid2` VARCHAR(45) NOT NULL,
     PRIMARY KEY (`channelid`))
