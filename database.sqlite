@@ -1,9 +1,29 @@
-DROP SCHEMA IF EXISTS `database`;
-CREATE SCHEMA IF NOT EXISTS `database` DEFAULT CHARACTER SET utf8;
-USE `database`;
+CREATE TABLE IF NOT EXISTS category (
+    categoryid text PRIMARY KEY NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS `database`.`whisper` (
-    `channelid` VARCHAR(45) NOT NULL,
-    `userid1` VARCHAR(45) NOT NULL,
-    `userid2` VARCHAR(45) NOT NULL,
-    PRIMARY KEY (`channelid`))
+CREATE TABLE IF NOT EXISTS campaign (
+    campaignid text PRIMARY KEY NOT NULL,
+    campaignname text NOT NULL,
+    description text NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS channel (
+    channelid text PRIMARY KEY NOT NULL,
+    channelname text NOT NULL,
+    categoryid text NOT NULL,
+    FOREIGN KEY (categoryid) REFERENCES category (categoryid)
+);
+
+CREATE TABLE IF NOT EXISTS whisper (
+    channelid text NOT NULL,
+    categoryid text NOT NULL,
+    campaignid text NOT NULL,
+    userid1 text NOT NULL,
+    userid2 text NOT NULL,
+    FOREIGN KEY (channelid) REFERENCES channel (channelid),
+    FOREIGN KEY (categoryid) REFERENCES category (categoryid),
+    FOREIGN KEY (campaignid) REFERENCES campaign (campaignid)
+);
+    
+

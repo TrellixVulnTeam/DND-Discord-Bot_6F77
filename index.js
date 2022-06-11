@@ -86,7 +86,6 @@ client.on("interactionCreate", async (interaction) => {
             return
         }
     } else if(interaction.isSelectMenu()) {
-        
         const { values, member } = interaction;
 
         if(interaction.customId === 'select' && member instanceof GuildMember) {

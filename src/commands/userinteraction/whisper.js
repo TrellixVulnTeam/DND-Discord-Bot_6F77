@@ -18,89 +18,126 @@ module.exports = {
         if(recipient && recipient != interaction.member.user) { 
 
             let createChannel = function createChannel(){
-                // ADD VARIABLE CAMPAIGN
-                let campaignname = "ghost of saltmarsh"
-                interaction.guild.channels.create(`${interaction.member.user.username}-${recipient.username}-${campaignname}`, {
-                    type: 'GUILD_TEXT',
-                }).then((channel => {
-                    const categoryId = '984140536145379370'
-                    channel.setParent(categoryId);
-                    // ADD DM PERMISSIONS
-                    channel.permissionOverwrites.set([
-                        {
-                            id: channel.guild.roles.everyone.id,
-                            deny: [Permissions.FLAGS.VIEW_CHANNEL],
-                        },
-                        {
-                            id: recipient.id,
-                            allow: [Permissions.FLAGS.VIEW_CHANNEL],
-                        },
-                        {
-                            id: interaction.member.user.id,
-                            allow: [Permissions.FLAGS.VIEW_CHANNEL],
-                        }
-                    ]);
-                    
-                    channel.send(`Hey ${recipient}! ${interaction.member.user} sent you a whisper containing: "` + message + `"`);
-
-                    interaction.reply({
-                        content: 'Whisper: "' + message +  `" has been sent to ${recipient.username}`,
-                        ephemeral: true
-                    });    
-    
-                    let query = `SELECT * FROM whisperrelation WHERE userid1 = ? AND userid2 = ?`;
-                    database.get(query, [interaction.member.user.id, recipient.id], (err, row) => {
+                let query = `SELECT * FROM campaign`;
+                let campaignname = "";
+                database.get(query, [], (err, row) => {
                     if (err) {
                         console.log(err.message);
                         return;
                     }
                     if (row === undefined) {
-                        // if Database Entry doesn't exist, create one and insert data according to users
-                        database.run("INSERT INTO whisperrelation VALUES($channelid, $userid1, $userid2)", {
-                            $channelid: channel.id,
-                            $userid1: interaction.member.user.id,
-                            $userid2: recipient.id
-                        });
+                        console.log("fuck you");
                         return;
                     } else {
-                        let userid1 = row.userid1;
-                        let userid2 = row.userid2;
-                        let channelid = row.channelid;
-                        console.log(channelid, userid1, userid2);
-                    }
-                    });
+                        campaignname = row.campaignname;
                         
-                }));
-            };
-            let channelExists = function channelExists(){
-                let query = `SELECT channelid FROM whisperrelation WHERE userid1 = ? AND userid2 = ? OR userid1 = ? AND userid2 = ?`;
-                database.get(query, [interaction.member.user.id, recipient.id, recipient.id, interaction.member.user.id], (err, row) => {
-                    if(err) {
-                        console.log(err.message);
-                        return
-                    } else {
-                        let channel = interaction.guild.channels.cache.find(channel => 
-                            channel.id === row.channelid);
-                        channel.send(`Hey ${interaction.member.user}, you already have a whisper with ${recipient.username}`);
-                        interaction.reply({
-                            content: `Redirect to: <#${channel.id}>`,
-                            ephemeral: true
-                        });
-                        return;
+                        interaction.guild.channels.create(`${interaction.member.user.username}-${recipient.username}-${campaignname}`, {
+                            type: 'GUILD_TEXT',
+                        }).then((channel => {
+                            const categoryId = '984140536145379370'
+                            channel.setParent(categoryId);
+                            // ADD DM PERMISSIONS
+                            channel.permissionOverwrites.set([
+                                {
+                                    id: channel.guild.roles.everyone.id,
+                                    deny: [Permissions.FLAGS.VIEW_CHANNEL],
+                                },
+                                {
+                                    id: recipient.id,
+                                    allow: [Permissions.FLAGS.VIEW_CHANNEL],
+                                },
+                                {
+                                    id: interaction.member.user.id,
+                                    allow: [Permissions.FLAGS.VIEW_CHANNEL],
+                                }
+                            ]);
+                            
+                            channel.send(`Hey ${recipient}! ${interaction.member.user} sent you a whisper containing: "` + message + `"`);
+        
+                            interaction.reply({
+                                content: 'Whisper: "' + message +  `" has been sent to ${recipient.username}`,
+                                ephemeral: true
+                            });    
+            
+                            let query = `SELECT userid1, userid2 FROM whisper WHERE userid1 = ? AND userid2 = ?`;
+                            database.get(query, [interaction.member.user.id, recipient.id], (err, row) => {
+                            if (err) {
+                                console.log(err.message);
+                                return;
+                            }
+                            if (row === undefined) {
+        
+                                let queryCategory = `SELECT * FROM category`;
+                                let categoryId = "";
+                                database.get(queryCategory, [], (err, row) => {
+                                    if (err) {
+                                        console.log(err.message);
+                                        return;
+                                    } else {
+                                        categoryId = row.categoryid;
+                                    }
+                                });
+        
+                                database.run("INSERT INTO channel VALUES($channelid, $channelname, $categoryid)", {
+                                    $channelid: channel.id,
+                                    $channelname: channel.name,
+                                    $categoryid: categoryId
+                                });
+        
+                                console.log(categoryId);
+        
+                                let query = `SELECT campaignid FROM campaign WHERE campaignname = ?`;
+                                database.get(query, [campaignname]);
+        
+                                // if Database Entry doesn't exist, create one and insert data according to users
+                                database.run("INSERT INTO whisper VALUES($channelid, $categoryid, $campaignid, $userid1, $userid2)", {
+                                    $channelid: channel.id,
+                                    $categoryid: categoryId,
+                                    $campaignid: "",
+                                    $userid1: interaction.member.user.id,
+                                    $userid2: recipient.id
+                                });
+                                return;
+                            } else {
+                                let userid1 = row.userid1;
+                                let userid2 = row.userid2;
+                                let channelid = row.channelid;
+                                console.log(channelid, userid1, userid2);
+                            }
+                            });
+                                
+                        }));
                     }
                 });
             };
 
-            let query = `SELECT channelid FROM whisperrelation WHERE userid1 = ? AND userid2 = ? OR userid1 = ? AND userid2 = ?`;
+            let query = `SELECT channelid FROM whisper WHERE userid1 = ? AND userid2 = ? OR userid1 = ? AND userid2 = ?`;
             database.get(query, [interaction.member.user.id, recipient.id, recipient.id, interaction.member.user.id], (err, row) => {
                 if(err) {
                     console.log(err.message);
-                    return
+                    return;
                 }
                 if(row === undefined){
+                    console.log("create");
                     createChannel();
                 } else {
-                    channelExists();
+                    console.log("exists");
+                    let query = `SELECT channelid FROM whisper WHERE userid1 = ? AND userid2 = ? OR userid1 = ? AND userid2 = ?`;
+                    database.get(query, [interaction.member.user.id, recipient.id, recipient.id, interaction.member.user.id], (err, row) => {
+                        if(err) {
+                            console.log(err.message);
+                            return;
+                        } else {
+                            let channel = interaction.guild.channels.cache.find(channel => 
+                                row.channelid === channel.id);
+                            channel.send(`Hey ${interaction.member.user}, you already have a whisper with ${recipient.username}`);
+                            interaction.reply({
+                                content: `Redirect to: <#${channel.id}>`,
+                                ephemeral: true
+                            });
+                            return;
+                        } 
+                    });
                 }
             });
         } else {
