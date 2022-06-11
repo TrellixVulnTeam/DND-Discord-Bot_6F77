@@ -26,7 +26,10 @@
     "@discordjs/voice": "^0.7.5",
     "discord-api-types": "^0.25.2",
     "discord.js": "^13.8.0",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "sql.js": "^1.7.0",
+    "sqlite.js": "^0.0.2-security",
+    "sqlite3": "^5.0.8"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"

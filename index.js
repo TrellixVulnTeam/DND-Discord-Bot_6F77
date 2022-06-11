@@ -1,6 +1,40 @@
 require("dotenv").config();
 const { Client, Collection, Intents, SelectMenuInteraction, GuildMember} = require("discord.js");
 const fs = require("fs");
+// const sqlite3 = require("sqlite3").verbose();
+const initSqlJs = require('./node_modules/sql.js/dist/sql-wasm');
+const fileBuffer = fs.readFileSync('database.sqlite')
+
+var db = initSqlJs().then(function (SQL) {
+    // Create a new database with our existing sample.sqlite file
+    db = new SQL.Database(fileBuffer);
+    console.log("Connection Successful");
+});
+
+sql = `SELECT * FROM whisper`;
+db.execute(sql, [], (err, rows) => {
+    if (err) return console.error(err.message);
+    rows.forEach(row => {
+        console.log(row);    
+    });
+});
+
+// const stmnt = db.prepare("SELECT * FROM whisper");
+
+// console.log(result);
+// const db = new sqlite3.Database("./database.db", sqlite3.OPEN_READWRITE, (err) => {
+//     if(err) return console.error(err.message);
+
+//     console.log("Connection Successful");
+// });
+
+// db.run(
+//     `CREATE TABLE whisper(channelid STRING PRIMARY KEY, username1 STRING, username2 STRING)`
+// );
+
+// db.close((err => {
+//     if (err) return console.error(err.message);
+// }));
 
 const client = new Client({
     intents: [
